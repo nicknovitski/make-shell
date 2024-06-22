@@ -1,0 +1,3 @@
+#! /usr/bin/env bash
+
+exec nix run nixpkgs#alejandra -- *.nix **/*.nix

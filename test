@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -eu
+
+for example in ./examples/*; do
+  nix develop "$example" --override-input make-shell ./. --command bash -c "echo $example: succeeded"
+done

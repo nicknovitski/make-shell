@@ -9,7 +9,7 @@
         (prev.lib.evalModules {
           modules = [
             ./shell-module.nix
-            ({config, ...}: {config._module.args.pkgs = final;})
+            {config._module.args.pkgs = final;}
             module
           ];
         })

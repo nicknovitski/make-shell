@@ -41,15 +41,15 @@ in {
       description = "Packages whose inputs are available in the shell environment";
       type = types.listOf types.package;
     };
-    extraArgs = mkOption {
+    additionalArguments = mkOption {
       default = {};
       description = "Arbitrary additional arguments passed to mkShell";
-      type = types.attrs;
+      type = types.attrsOf types.anything;
     };
   };
   config.finalPackage = pkgs.mkShell (
     lib.recursiveUpdate
     {inherit (config) env name packages inputsFrom shellHook;}
-    config.extraArgs
+    config.additionalArguments
   );
 }

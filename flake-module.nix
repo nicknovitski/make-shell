@@ -44,7 +44,7 @@ in {
           modules =
             [
               {_module = {inherit args;};}
-              ./shell-module.nix
+              ./shell-modules/default.nix
             ]
             ++ config.make-shell.imports;
         });

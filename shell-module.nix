@@ -10,12 +10,12 @@ in {
     name = mkOption {
       default = "nix-shell";
       type = types.str;
-      description = "Name of the shell environment";
+      description = "Name of the shell environment package.";
     };
     finalPackage = mkOption {
       type = types.package;
       readOnly = true;
-      description = "Resulting shell environment package.";
+      description = "The resulting shell environment package.";
     };
     env = mkOption {
       default = {};
@@ -33,12 +33,12 @@ in {
     };
     packages = mkOption {
       default = [];
-      description = "Packages available in the shell environment";
+      description = "Packages available in the shell environment.";
       type = types.listOf types.package;
     };
     inputsFrom = mkOption {
       default = [];
-      description = "Packages whose inputs are available in the shell environment";
+      description = "Packages whose inputs are available in the shell environment.";
       type = types.listOf types.package;
     };
     additionalArguments = mkOption {
@@ -48,13 +48,14 @@ in {
     };
   };
   config.finalPackage = let
+    inherit (builtins) attrNames isPath toString;
     inherit (lib.attrsets) filterAttrs mapAttrs;
     # mkShell.env values can be derivations, strings, booleans or integers.
     # path and null values are separated for special handling.
-    simpleEnv = filterAttrs (_: v: !(v == null || builtins.isPath v)) config.env;
-    pathEnv = filterAttrs (_: builtins.isPath) config.env;
-    envVarsToUnset = builtins.attrNames (lib.filterAttrs (_: v: v == null) config.env);
-    env = simpleEnv // mapAttrs (_: builtins.toString) pathEnv;
+    simpleEnv = filterAttrs (_: v: !(v == null || isPath v)) config.env;
+    pathEnv = filterAttrs (_: isPath) config.env;
+    envVarsToUnset = attrNames (filterAttrs (_: v: v == null) config.env);
+    env = simpleEnv // mapAttrs (_: toString) pathEnv;
   in
     pkgs.mkShell (
       lib.recursiveUpdate

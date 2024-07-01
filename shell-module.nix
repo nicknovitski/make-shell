@@ -22,7 +22,7 @@ in {
       description = ''
         An attribute set to control environment variables in the shell environment.
 
-        If the value of an attribute is `null`, the variable of the matching name is `unset`.  Otherwise the variable of the attribute name is set to the attribute's value.  Integer, path, and derivation values are converted to strings.  The boolean true value is converted to the string `"1"`, and the boolean false value is converted to the empty string.
+        If the value of an attribute is `null`, the variable of that attribute's name is `unset`.  Otherwise the variable of the attribute name is set to the attribute's value.  Integer, path, and derivation values are converted to strings.  The boolean true value is converted to the string `"1"`, and the boolean false value is converted to the empty string `""`.
       '';
       type = types.attrsOf (types.nullOr (types.oneOf [types.bool types.int types.str types.path types.package]));
     };

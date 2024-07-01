@@ -20,9 +20,20 @@ in {
     } @ args: let
       inherit (lib.types) attrsOf listOf submoduleWith raw;
     in {
-      options.make-shell.sharedModules = lib.mkOption {
+      options.make-shell.imports = lib.mkOption {
         description = "Modules to import into all shells created using `make-shells`";
         default = [];
+        example = lib.literalExpression ''
+          [({pkgs, ...}: {
+            additionalArguments = {
+              doCheck = true;
+              phases = [ "buildPhase" "checkPhase" ];
+              checkPhase = \'\'
+                ''${pkgs.shellcheck}/bin/shellcheck --shell bash <(echo "$shellHook")
+              \'\';
+            };
+          })]
+        '';
         type = listOf raw;
       };
       options.make-shells = lib.mkOption {
@@ -35,7 +46,7 @@ in {
               {_module = {inherit args;};}
               ./shell-module.nix
             ]
-            ++ config.make-shell.sharedModules;
+            ++ config.make-shell.imports;
         });
       };
       config = {

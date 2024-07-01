@@ -8,7 +8,7 @@
       make-shell = module:
         (prev.lib.evalModules {
           modules = [
-            ./shell-module.nix
+            ./shell-modules/default.nix
             {config._module.args.pkgs = final;}
             module
           ];

@@ -19,12 +19,12 @@ in {
     };
     env = mkOption {
       default = {};
-      description = "Environment variables set in the shell environment.";
-      type = let
-        one = [types.bool types.int types.str types.path types.package];
-        listOrOne = one ++ [(types.listOf (types.oneOf one))];
-      in
-        types.attrsOf (types.nullOr (types.oneOf listOrOne));
+      description = ''
+        An attribute set to control environment variables in the shell environment.
+
+        If the value of an attribute is `null`, the variable of the matching name is `unset`.  Otherwise the variable of the attribute name is set to the attribute's value.  Integer, path, and derivation values are converted to strings.  The boolean true value is converted to the string `"1"`, and the boolean false value is converted to the empty string.
+      '';
+      type = types.attrsOf (types.nullOr (types.oneOf [types.bool types.int types.str types.path types.package]));
     };
     shellHook = mkOption {
       default = "";
@@ -47,9 +47,22 @@ in {
       type = types.attrsOf types.anything;
     };
   };
-  config.finalPackage = pkgs.mkShell (
-    lib.recursiveUpdate
-    {inherit (config) env name packages inputsFrom shellHook;}
-    config.additionalArguments
-  );
+  config.finalPackage = let
+    inherit (lib.attrsets) filterAttrs mapAttrs;
+    # mkShell.env values can be derivations, strings, booleans or integers.
+    # path and null values are separated for special handling.
+    simpleEnv = filterAttrs (_: v: !(v == null || builtins.isPath v)) config.env;
+    pathEnv = filterAttrs (_: builtins.isPath) config.env;
+    envVarsToUnset = builtins.attrNames (lib.filterAttrs (_: v: v == null) config.env);
+    env = simpleEnv // mapAttrs (_: builtins.toString) pathEnv;
+  in
+    pkgs.mkShell (
+      lib.recursiveUpdate
+      {
+        inherit env;
+        inherit (config) name packages inputsFrom;
+        shellHook = config.shellHook + "\nunset ${lib.concatStringsSep " " envVarsToUnset}";
+      }
+      config.additionalArguments
+    );
 }

@@ -10,13 +10,20 @@ in {
   options = {
     name = mkOption {
       default = "nix-shell";
-      type = types.str;
       description = "Name of the shell environment package.";
+      type = types.str;
+    };
+    function = mkOption {
+      default = pkgs.mkShell;
+      example = lib.literalExpression "pkgs.mkShellNoCC";
+      defaultText = lib.literalExpression "pkgs.mkShell";
+      description = "Function which the final evaluated config will be passed to, returning a shell derivation.";
+      type = types.functionTo types.package;
     };
     finalPackage = mkOption {
-      type = types.package;
+      description = "The shell environment resulting from passing evaluated module configuration to the package-making function.";
       readOnly = true;
-      description = "The resulting shell environment package.";
+      type = types.package;
     };
     shellHook = mkOption {
       default = "";
@@ -35,11 +42,11 @@ in {
     };
     additionalArguments = mkOption {
       default = {};
-      description = "Arbitrary additional arguments passed to mkShell";
+      description = "Arbitrary additional arguments passed to the function";
       type = types.attrsOf types.anything;
     };
   };
-  config.finalPackage = pkgs.mkShell (
+  config.finalPackage = config.function (
     lib.recursiveUpdate {
       inherit (config) name packages inputsFrom shellHook;
       env = config.finalEnv;

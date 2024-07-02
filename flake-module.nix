@@ -40,7 +40,6 @@ in {
         description = "For each attribute in this set, make-shell is called with the value, and the resulting package is added to the flake as a devShell attribute with the same name, and as a check with the name '\${attribute name}-devshell'.";
         default = {};
         type = attrsOf (submoduleWith {
-          specialArgs = specialArgs // {inherit inputs self;};
           modules =
             [
               {_module = {inherit args;};}

@@ -1,6 +1,11 @@
 {
   description = "mkShell meets modules";
 
+  inputs = {
+    flake-compat.url = "github:edolstra/flake-compat";
+    flake-compat.flake = false;
+  };
+
   outputs = _: {
     flakeModule = builtins.trace "[1;31mUse `flakeModules.default` instead of `flakeModule`[0" ./flake-module.nix;
     flakeModules.default = ./flake-module.nix;

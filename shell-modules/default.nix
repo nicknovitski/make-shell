@@ -6,7 +6,7 @@
 }: let
   inherit (lib) mkOption types;
 in {
-  imports = [./env.nix];
+  imports = [./env.nix ./packages.nix];
   options = {
     name = mkOption {
       default = "nix-shell";
@@ -30,16 +30,6 @@ in {
       description = "Bash code evaluated when the shell environment starts.";
       type = types.lines;
     };
-    packages = mkOption {
-      default = [];
-      description = "Packages available in the shell environment.";
-      type = types.listOf types.package;
-    };
-    inputsFrom = mkOption {
-      default = [];
-      description = "Packages whose inputs are available in the shell environment.";
-      type = types.listOf types.package;
-    };
     additionalArguments = mkOption {
       default = {};
       description = "Arbitrary additional arguments passed to the function";
@@ -48,7 +38,14 @@ in {
   };
   config.finalPackage = config.function (
     lib.recursiveUpdate {
-      inherit (config) name packages inputsFrom shellHook;
+      inherit
+        (config)
+        inputsFrom
+        name
+        nativeBuildInputs
+        packages
+        shellHook
+        ;
       env = config.finalEnv;
     }
     config.additionalArguments

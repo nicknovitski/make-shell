@@ -67,11 +67,15 @@ This differs from the `mkShell` and `mkDerivation` parameter of the same name in
 
 Multiple definitions of this option are merged.  If attributes of the same name are defined multiple times, evaluation errors.
 
-### `packages`: Array of Derivations
+### `nativeBuildInputs`: Array of Derivations
 
 When you add packages to this, they are present in the shell.  This means several things, including that any `bin` outputs are present in the `PATH` variable.
 
 Multiple definitions of this option are concatenated.
+
+### `packages`: Array of Derivations
+
+As with the `mkShell` parameters of the same names, this option has identical behavior to `nativeBuildInputs`.
 
 ### `inputsFrom`: Array of Derivations
 

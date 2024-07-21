@@ -10,18 +10,23 @@ in {
   options = {
     name = mkOption {
       default = "nix-shell";
-      description = "Name of the shell environment package.";
+      description = "Name of the shell environment derivation.";
       type = types.str;
     };
     function = mkOption {
-      default = pkgs.mkShell;
-      example = lib.literalExpression "pkgs.mkShellNoCC";
-      defaultText = lib.literalExpression "pkgs.mkShell";
-      description = "Function which the final evaluated config will be passed to, returning a shell derivation.";
-      type = types.functionTo types.package;
+      default = null;
+      visible = false;
+      type = types.nullOr (types.functionTo types.package);
+    };
+    stdenv = mkOption {
+      default = pkgs.stdenv;
+      defaultText = lib.literalExpression "pkgs.stdenv";
+      example = lib.literalExpression "pkgs.stdenvNoCC";
+      description = "The standard environment from which the shell derivation will be created.";
+      type = types.package;
     };
     finalPackage = mkOption {
-      description = "The shell environment resulting from passing evaluated module configuration to the package-making function.";
+      description = "The shell derivation resulting from passing the evaluated configuration to mkDerivation.";
       readOnly = true;
       type = types.package;
     };
@@ -32,22 +37,34 @@ in {
     };
     additionalArguments = mkOption {
       default = {};
-      description = "Arbitrary additional arguments passed to the function";
+      description = "Arbitrary additional arguments passed to mkDerivation.";
       type = types.attrsOf types.anything;
     };
   };
-  config.finalPackage = config.function (
-    lib.recursiveUpdate {
-      inherit
-        (config)
-        inputsFrom
-        name
-        nativeBuildInputs
-        packages
-        shellHook
-        ;
-      env = config.finalEnv;
-    }
-    config.additionalArguments
-  );
+  config = {
+    finalPackage =
+      (
+        if config.function != null
+        then lib.trivial.warn "The option `function` is deprecated and will be removed in a future release.  Consider using the option `stdenv` instead." config.function
+        else config.stdenv.mkDerivation
+      ) (
+        lib.recursiveUpdate {
+          inherit
+            (config)
+            name
+            buildInputs
+            propagatedBuildInputs
+            propagatedNativeBuildInputs
+            shellHook
+            ;
+          # Using the identical buildPhase to mkShell lets many
+          # mkShell->make-shell migrations be bit-identical and re-use the same
+          # cache.
+          inherit (pkgs.mkShell {}) preferLocalBuild phases buildPhase;
+          nativeBuildInputs = config.packages ++ config.nativeBuildInputs;
+          env = config.finalEnv;
+        }
+        config.additionalArguments
+      );
+  };
 }

@@ -42,7 +42,7 @@ in {
         type = attrsOf (submoduleWith {
           modules =
             [
-              {_module = {args = args // { inherit inputs self; };};}
+              {_module = {args = args // {inherit inputs self;};};}
               ./shell-modules/default.nix
             ]
             ++ config.make-shell.imports;

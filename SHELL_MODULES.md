@@ -103,9 +103,9 @@ Multiple definitions of this option are merged.  If attributes of the same name 
 
 ## Module Options
 
-### `function`: Function which returns a pacakge
+### `stdenv`: [The standard build environment](https://nixos.org/manual/nixpkgs/stable/#chap-stdenv), or something similar to it
 
-`make-shell` passes the final evaluated module configuration to this function and returns whatever it returns.  By default it's `mkShell`, but you could change it to `mkShellNoCC`, or any other you like.
+`make-shell` passes the final evaluated module configuration to the `stdenv.mkDerivation` function, and returns whatever that returns.  You can change this to `pkgs.stdenvNoCC`, or any other standard environment variation you like.
 
 If this option is defined multiple times, evaluation errors.
 

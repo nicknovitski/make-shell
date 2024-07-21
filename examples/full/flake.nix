@@ -16,6 +16,7 @@
         packages.default = pkgs.hello; # see inputsFrom, below
         make-shells.default = {
           shellHook = "echo $GREETINGS";
+          stdenv = pkgs.stdenvNoCC; # a slightly stripped-down environment
           # Import and merge modules!
           imports = [
             # Refer to your flake's outputs!

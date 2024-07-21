@@ -11,7 +11,7 @@ I can't define nix modules any better than [nix.dev's excellent quick introducti
 > - It may define values, for options declared by itself or other modules.
 > - When evaluated by the module system, it produces an attribute set based on the declarations and definitions.
 
-`make-shell` evaluates its argument as a module, using [`lib.evalModules` from nixpkgs](https://nixos.org/manual/nixpkgs/unstable/#module-system-lib-evalModules), passes the result attribute set to [`mkShell`](https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-mkShell), and returns the result: a derivation suitable for use as a shell environment with `nix develop`.
+`make-shell` evaluates its argument as a module, using [`lib.evalModules` from nixpkgs](https://nixos.org/manual/nixpkgs/unstable/#module-system-lib-evalModules), modifying a few things to match the behavior of [`mkShell`](https://nixos.org/manual/nixpkgs/stable/#sec-pkgs-mkShell), passes the resulting configuration to [`mkDerivation`](https://nixos.org/manual/nixpkgs/stable/#sec-using-stdenv), and returns the result: a derivation suitable for use as a shell environment with `nix develop`.
 
 If you're wondering whether you can benefit from this, check [this repository's WHY file](WHY.md).
 
@@ -69,9 +69,9 @@ To do the same thing with the flake module instead:
 
 > *If you're using flake-parts*, the flake module options, which include all the shell module options, are also [documented on the flake.parts site](https://flake.parts/options/make-shell).
 
-The most common attributes used with `mkShell` are also valid Shell Options!  That means that `make-shell` can often be a drop-in replacement for `mkShell`.  When it isn't, there's only two possible changes you need to make:
+All common attributes used with `mkShell` are also valid Shell Options!  That means that `make-shell` can often be a drop-in replacement for `mkShell`.  When it isn't, there's only two possible changes you need to make:
 
-### `mkShell` arguments which are intended to be environment variables in the shell environment should be changed to attributes of the `env` option
+### Arguments which are intended to be environment variables in the shell environment should be changed to attributes of the `env` option
 
 For example:
 ```nix

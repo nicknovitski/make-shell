@@ -56,13 +56,14 @@ in
         simpleEnv // mapAttrs (_: toString) pathEnv;
     };
   };
-  config = {
-    shellHook =
-      let
-        inherit (builtins) attrNames;
-        inherit (lib.attrsets) filterAttrs;
-        envVarsToUnset = attrNames (filterAttrs (_: v: v == null) config.env);
-      in
-      lib.optionalString (envVarsToUnset != [ ]) "unset ${lib.concatStringsSep " " envVarsToUnset}";
-  };
+  config =
+    let
+      inherit (builtins) attrNames concatStringsSep;
+      inherit (lib) mkIf;
+      inherit (lib.attrsets) filterAttrs;
+      envVarsToUnset = attrNames (filterAttrs (_: v: v == null) config.env);
+    in
+    mkIf (envVarsToUnset != [ ]) {
+      shellHook = "unset ${concatStringsSep " " envVarsToUnset}";
+    };
 }

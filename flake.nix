@@ -10,16 +10,15 @@
     flakeModule = builtins.trace "[1;31mUse `flakeModules.default` instead of `flakeModule`[0" ./flake-module.nix;
     flakeModules.default = ./flake-module.nix;
     overlays.default = final: prev: {
-      make-shell = module:
+      make-shell =
+        module:
         (prev.lib.evalModules {
           modules = [
             ./shell-modules/default.nix
-            {config._module.args.pkgs = final;}
+            { config._module.args.pkgs = final; }
             module
           ];
-        })
-        .config
-        .finalPackage;
+        }).config.finalPackage;
     };
     templates = {
       default = {

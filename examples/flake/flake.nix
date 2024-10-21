@@ -7,21 +7,31 @@
     make-shell.url = "github:nicknovitski/make-shell";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    make-shell,
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {
-        inherit system;
-        config = {};
-        overlays = [make-shell.overlays.default];
-      };
-    in {
-      devShells.default = pkgs.make-shell {
-        packages = [pkgs.curl pkgs.git pkgs.jq pkgs.wget];
-      };
-    });
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+      make-shell,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs {
+          inherit system;
+          config = { };
+          overlays = [ make-shell.overlays.default ];
+        };
+      in
+      {
+        devShells.default = pkgs.make-shell {
+          packages = [
+            pkgs.curl
+            pkgs.git
+            pkgs.jq
+            pkgs.wget
+          ];
+        };
+      }
+    );
 }

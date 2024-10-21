@@ -1,13 +1,11 @@
-{
-  config,
-  lib,
-  ...
-}: let
+{ config, lib, ... }:
+let
   inherit (lib) mkOption types;
-in {
+in
+{
   options = {
     env = mkOption {
-      default = {};
+      default = { };
       description = ''
         An attribute set to control environment variables in the shell environment.
 
@@ -23,29 +21,48 @@ in {
           COWSAY = pkgs.cowsay
         }
       '';
-      type = types.attrsOf (types.nullOr (types.oneOf [types.bool types.int types.str types.path types.package]));
+      type = types.attrsOf (
+        types.nullOr (
+          types.oneOf [
+            types.bool
+            types.int
+            types.package
+            types.path
+            types.str
+          ]
+        )
+      );
     };
     finalEnv = mkOption {
       readOnly = true;
       internal = true;
       # mkShell.env values can be derivations, strings, booleans or integers.
       # path and null values are separated for special handling.
-      type = types.attrsOf (types.oneOf [types.bool types.int types.str types.package]);
-      default = let
-        inherit (builtins) isPath toString;
-        inherit (lib.attrsets) filterAttrs mapAttrs;
-        simpleEnv = filterAttrs (_: v: !(v == null || isPath v)) config.env;
-        pathEnv = filterAttrs (_: isPath) config.env;
-      in
+      type = types.attrsOf (
+        types.oneOf [
+          types.bool
+          types.int
+          types.str
+          types.package
+        ]
+      );
+      default =
+        let
+          inherit (builtins) isPath toString;
+          inherit (lib.attrsets) filterAttrs mapAttrs;
+          simpleEnv = filterAttrs (_: v: !(v == null || isPath v)) config.env;
+          pathEnv = filterAttrs (_: isPath) config.env;
+        in
         simpleEnv // mapAttrs (_: toString) pathEnv;
     };
   };
   config = {
-    shellHook = let
-      inherit (builtins) attrNames;
-      inherit (lib.attrsets) filterAttrs;
-      envVarsToUnset = attrNames (filterAttrs (_: v: v == null) config.env);
-    in
-      lib.optionalString (envVarsToUnset != []) "unset ${lib.concatStringsSep " " envVarsToUnset}";
+    shellHook =
+      let
+        inherit (builtins) attrNames;
+        inherit (lib.attrsets) filterAttrs;
+        envVarsToUnset = attrNames (filterAttrs (_: v: v == null) config.env);
+      in
+      lib.optionalString (envVarsToUnset != [ ]) "unset ${lib.concatStringsSep " " envVarsToUnset}";
   };
 }

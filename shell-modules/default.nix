@@ -3,10 +3,15 @@
   lib,
   pkgs,
   ...
-}: let
-  inherit (lib) mkOption types;
-in {
-  imports = [./env.nix ./packages.nix];
+}:
+let
+  inherit (lib) mkEnableOption mkOption types;
+in
+{
+  imports = [
+    ./env.nix
+    ./packages.nix
+  ];
   options = {
     name = mkOption {
       default = "nix-shell";
@@ -36,7 +41,7 @@ in {
       type = types.lines;
     };
     additionalArguments = mkOption {
-      default = {};
+      default = { };
       description = "Arbitrary additional arguments passed to mkDerivation.";
       type = types.attrsOf types.anything;
     };
@@ -44,27 +49,27 @@ in {
   config = {
     finalPackage =
       (
-        if config.function != null
-        then lib.trivial.warn "The option `function` is deprecated and will be removed in a future release.  Consider using the option `stdenv` instead." config.function
-        else config.stdenv.mkDerivation
-      ) (
-        lib.recursiveUpdate {
-          inherit
-            (config)
-            name
-            buildInputs
-            propagatedBuildInputs
-            propagatedNativeBuildInputs
-            shellHook
-            ;
-          # Using the identical buildPhase to mkShell lets many
-          # mkShell->make-shell migrations be bit-identical and re-use the same
-          # cache.
-          inherit (pkgs.mkShell {}) preferLocalBuild phases buildPhase;
-          nativeBuildInputs = config.packages ++ config.nativeBuildInputs;
-          env = config.finalEnv;
-        }
-        config.additionalArguments
-      );
+        if config.function != null then
+          lib.trivial.warn "The option `function` is deprecated and will be removed in a future release.  Consider using the option `stdenv` instead." config.function
+        else
+          config.stdenv.mkDerivation
+      )
+        (
+          lib.recursiveUpdate {
+            inherit (config)
+              buildInputs
+              name
+              propagatedBuildInputs
+              propagatedNativeBuildInputs
+              shellHook
+              ;
+            # Using the identical buildPhase to mkShell lets many
+            # mkShell->make-shell migrations be bit-identical and re-use the
+            # same cache.
+            inherit (pkgs.mkShell { }) preferLocalBuild phases buildPhase;
+            nativeBuildInputs = config.packages ++ config.nativeBuildInputs;
+            env = config.finalEnv;
+          } config.additionalArguments
+        );
   };
 }

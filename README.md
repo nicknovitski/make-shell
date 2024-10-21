@@ -19,6 +19,8 @@ If you're wondering whether you can benefit from this, check [this repository's 
 
 This repository is a nix flake with an overlay output that adds make-shell to a nixpkgs set.  It also has a flake module output which can be used with [flake-parts](https://flake.parts/), which lets you write your flakes using modules!).  You can use either to make `make-shell` available to your flake.
 
+> If you aren't using flakes you can still import this repository using tools like [npins](https://github.com/andir/npins/) or [niv](https://github.com/nmattia/niv).
+
 Either way, start by adding this flake to the inputs of your flake:
 ```nix
     inputs.make-shell.url = "github:nicknovitski/make-shell";

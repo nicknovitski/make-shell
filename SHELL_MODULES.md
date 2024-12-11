@@ -52,6 +52,7 @@ outputs = inputs:
           ({self, ...}: {env.GREETINGS = self.lib.emphasize "Hello from a merged shell";}) # self.lib
           ({self', ...}: {inputsFrom = [self'.packages.default];}) # self'.packages
         ];
+```
 
 ## Basic Options
 
